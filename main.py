@@ -20,9 +20,9 @@ async def read_root():
         from secrets_ import PRIVATE_KEY
         auth = Auth.AppAuth(GITHUB_APP_ID, PRIVATE_KEY)
     elif deployment == "DEV":
-        from azure.identity import ManagedIdentityCredential
-        token = ManagedIdentityCredential().get_token().token
-        auth = Auth.AppAuthToken(token)
+        # from azure.identity import ManagedIdentityCredential
+        # token = ManagedIdentityCredential().get_token().token
+        auth = Auth.AppAuthToken(os.getenv("GITHUB_PROVIDER_AUTHENTICATION_SECRET"))
     elif deployment == "LOCAL_USER_TOKEN":
         from secrets_ import TOKEN
         auth = Auth.Token(TOKEN)
