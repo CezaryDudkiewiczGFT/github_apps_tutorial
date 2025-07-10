@@ -1,12 +1,20 @@
 # todo: create issue bot app
 import os
+
+import uvicorn
 from github import Github, GithubIntegration
 from github import Auth
 
 GITHUB_APP_ID = 1552123
 
+from fastapi import FastAPI
+from starlette.requests import Request
 
-def main():
+app = FastAPI()
+
+
+@app.get("/")
+async def read_root():
     deployment = os.getenv("DEPLOYMENT")
     if deployment == "LOCAL":
         from secrets_ import PRIVATE_KEY
@@ -34,7 +42,14 @@ def main():
 
     # To close connections after use
     g.close()
+    return {"Hello": "World created issue"}
+
+
+@app.post("/")
+async def read_response(request: Request):
+    req = await request.json()
+    print(req['action'])
 
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, port=8000)
