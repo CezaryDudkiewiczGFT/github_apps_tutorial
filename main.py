@@ -30,6 +30,7 @@ app = FastAPI()
 
 @app.get("/")
 async def read_root():
+    logger.info("!!!!!!!!!!!!!!!!!!Trying to create an issue!!!!!!!!!!!!!!!!!!!")
     deployment = os.getenv("DEPLOYMENT")
     if deployment == "LOCAL":
         from secrets_ import PRIVATE_KEY
