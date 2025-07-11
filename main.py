@@ -1,12 +1,25 @@
 # todo: create issue bot app
 import os
+import sys
 
 import uvicorn
 from azure.identity import ManagedIdentityCredential, DefaultAzureCredential
 from github import Github, GithubIntegration
 from github import Auth
 from azure.keyvault.secrets import SecretClient
+import logging
 
+logger = logging.getLogger("azure")
+logger.setLevel(logging.DEBUG)
+
+# Set the logging level for the azure.storage.blob library
+logger = logging.getLogger("azure.storage.blob")
+logger.setLevel(logging.DEBUG)
+
+# Direct logging output to stdout. Without adding a handler,
+# no logging output is visible.
+handler = logging.StreamHandler(stream=sys.stdout)
+logger.addHandler(handler)
 GITHUB_APP_ID = 1552123
 
 from fastapi import FastAPI
@@ -34,7 +47,7 @@ async def read_root():
         print("Getting key from kv")
         private_key = sc.get_secret("gh-key")
         print("creating auth")
-        auth = Auth.AppAuth(GITHUB_APP_ID, private_key)
+        auth = Auth.AppAuth(GITHUB_APP_ID, private_key.value)
     elif deployment == "LOCAL_USER_TOKEN":
         from secrets_ import TOKEN
         auth = Auth.Token(TOKEN)
