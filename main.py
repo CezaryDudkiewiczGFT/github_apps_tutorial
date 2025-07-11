@@ -1,30 +1,21 @@
 # todo: create issue bot app
 import os
-import sys
 
 import uvicorn
 from azure.identity import ManagedIdentityCredential, DefaultAzureCredential
 from github import Github, GithubIntegration
 from github import Auth
 from azure.keyvault.secrets import SecretClient
-import logging
 
-logger = logging.getLogger("azure")
-logger.setLevel(logging.DEBUG)
-
-# Set the logging level for the azure.storage.blob library
-logger = logging.getLogger("azure.storage.blob")
-logger.setLevel(logging.DEBUG)
-
-# Direct logging output to stdout. Without adding a handler,
-# no logging output is visible.
-handler = logging.StreamHandler(stream=sys.stdout)
-logger.addHandler(handler)
+from utils import create_logger
 GITHUB_APP_ID = 1552123
 
 from fastapi import FastAPI
 from starlette.requests import Request
 
+logger = create_logger()
+
+logger.info("Creating APP")
 app = FastAPI()
 
 
@@ -73,8 +64,9 @@ async def read_root():
 
 @app.post("/")
 async def read_response(request: Request):
+    print("Handling response from github:")
     req = await request.json()
-    print(req['action'])
+    print(f"Request['action']: {req['action']}")
 
 
 if __name__ == "__main__":
