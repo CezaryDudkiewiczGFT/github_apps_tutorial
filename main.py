@@ -28,25 +28,25 @@ async def read_root():
         auth = Auth.AppAuth(GITHUB_APP_ID, PRIVATE_KEY)
     elif deployment == "DEV":
         try:
-            print("MI")
+            logger.info("MI")
             credentials = ManagedIdentityCredential()
-            print("Trying to start sc")
+            logger.info("Trying to start sc")
             sc = SecretClient("https://gh-key-vaultt.vault.azure.net/", credentials)
         except:
-            print("default")
+            logger.info("default")
             credentials = DefaultAzureCredential()
             sc = SecretClient("https://gh-key-vaultt.vault.azure.net/", credentials)
-        print("Getting key from kv")
+        logger.info("Getting key from kv")
         private_key = sc.get_secret("gh-key")
-        print("creating auth")
+        logger.info("creating auth")
         auth = Auth.AppAuth(GITHUB_APP_ID, private_key.value)
     elif deployment == "LOCAL_USER_TOKEN":
         from secrets_ import TOKEN
         auth = Auth.Token(TOKEN)
         g = Github(auth=auth)
         for repo in g.get_user().get_repos():
-            print(repo.name)
-            print(repo.create_issue(title="App created issue"))
+            logger.info(repo.name)
+            logger.info(repo.create_issue(title="App created issue"))
     else:
         raise Exception("'DEPLOYMENT' env variable must be set!")
 
@@ -54,8 +54,8 @@ async def read_root():
         g = GithubIntegration(auth=auth)
         inst = g.get_installations()[0]
         for repo in inst.get_repos():
-            print(repo.name)
-            print(repo.create_issue(title=f"App created issue. {deployment}"))
+            logger.info(repo.name)
+            logger.info(repo.create_issue(title=f"App created issue. {deployment}"))
 
     # To close connections after use
     g.close()
@@ -64,9 +64,9 @@ async def read_root():
 
 @app.post("/")
 async def read_response(request: Request):
-    print("Handling response from github:")
+    logger.info("Handling response from github:")
     req = await request.json()
-    print(f"Request['action']: {req['action']}")
+    logger.info(f"Request['action']: {req['action']}")
 
 
 if __name__ == "__main__":
