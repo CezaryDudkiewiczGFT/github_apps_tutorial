@@ -2,8 +2,10 @@
 import os
 
 import uvicorn
+from azure.identity import ManagedIdentityCredential, DefaultAzureCredential
 from github import Github, GithubIntegration
 from github import Auth
+from azure.keyvault.secrets import SecretClient
 
 GITHUB_APP_ID = 1552123
 
@@ -20,9 +22,19 @@ async def read_root():
         from secrets_ import PRIVATE_KEY
         auth = Auth.AppAuth(GITHUB_APP_ID, PRIVATE_KEY)
     elif deployment == "DEV":
-        # from azure.identity import ManagedIdentityCredential
-        # token = ManagedIdentityCredential().get_token().token
-        auth = Auth.AppAuthToken(os.getenv("GITHUB_PROVIDER_AUTHENTICATION_SECRET"))
+        try:
+            print("MI")
+            credentials = ManagedIdentityCredential()
+            print("Trying to start sc")
+            sc = SecretClient("https://gh-key-vaultt.vault.azure.net/", credentials)
+        except:
+            print("default")
+            credentials = DefaultAzureCredential()
+            sc = SecretClient("https://gh-key-vaultt.vault.azure.net/", credentials)
+        print("Getting key from kv")
+        private_key = sc.get_secret("gh-key")
+        print("creating auth")
+        auth = Auth.AppAuth(GITHUB_APP_ID, private_key)
     elif deployment == "LOCAL_USER_TOKEN":
         from secrets_ import TOKEN
         auth = Auth.Token(TOKEN)
